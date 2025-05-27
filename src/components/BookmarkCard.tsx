@@ -6,18 +6,26 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Database } from '@/lib/supabase'
 import { updateLastClicked, deleteBookmark } from '@/lib/bookmarks'
-import { Trash2, ExternalLink } from 'lucide-react'
+import { Trash2, ExternalLink, Edit } from 'lucide-react'
 import { HighlightText } from '@/components/HighlightText'
 
-type Bookmark = Database['public']['Tables']['bookmarks']['Row']
+type Bookmark = Database['public']['Tables']['bookmarks']['Row'] & {
+  bookmark_tags?: {
+    tags: {
+      id: string
+      name: string
+    }
+  }[]
+}
 
 interface BookmarkCardProps {
   bookmark: Bookmark
   onBookmarkDeleted: () => void
+  onBookmarkEdit?: (bookmark: Bookmark) => void
   searchQuery?: string
 }
 
-export const BookmarkCard = ({ bookmark, onBookmarkDeleted, searchQuery = '' }: BookmarkCardProps) => {
+export const BookmarkCard = ({ bookmark, onBookmarkDeleted, onBookmarkEdit, searchQuery = '' }: BookmarkCardProps) => {
   const handleClick = async () => {
     try {
       await updateLastClicked(bookmark.id)
@@ -97,9 +105,9 @@ export const BookmarkCard = ({ bookmark, onBookmarkDeleted, searchQuery = '' }: 
             )}
 
             {/* 태그 표시 */}
-            {(bookmark as any).bookmark_tags && (bookmark as any).bookmark_tags.length > 0 && (
+            {bookmark.bookmark_tags && bookmark.bookmark_tags.length > 0 && (
               <div className="flex flex-wrap gap-1 mb-2">
-                {(bookmark as any).bookmark_tags.map((bt: any) => (
+                {bookmark.bookmark_tags.map(bt => (
                   <Badge key={bt.tags.id} variant="outline" className="text-xs">
                     {bt.tags.name}
                   </Badge>
@@ -119,14 +127,29 @@ export const BookmarkCard = ({ bookmark, onBookmarkDeleted, searchQuery = '' }: 
                 )}
               </div>
               
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleDelete}
-                className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {onBookmarkEdit && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onBookmarkEdit(bookmark)
+                    }}
+                    className="text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleDelete}
+                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
 
             <p className="text-xs text-gray-400 truncate mt-1">

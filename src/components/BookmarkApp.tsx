@@ -11,9 +11,18 @@ import { getTags } from '@/lib/tags'
 import { AddBookmarkDialog } from '@/components/AddBookmarkDialog'
 import { BookmarkCard } from '@/components/BookmarkCard'
 import { FolderManager } from '@/components/FolderManager'
+import { EditBookmarkDialog } from '@/components/EditBookmarkDialog'
+import { TagManager } from '@/components/TagManager'
 import { Database } from '@/lib/supabase'
 
-type Bookmark = Database['public']['Tables']['bookmarks']['Row']
+type Bookmark = Database['public']['Tables']['bookmarks']['Row'] & {
+  bookmark_tags?: {
+    tags: {
+      id: string
+      name: string
+    }
+  }[]
+}
 type Folder = Database['public']['Tables']['folders']['Row']
 
 export const BookmarkApp = () => {
@@ -25,6 +34,7 @@ export const BookmarkApp = () => {
   const [selectedFolderId, setSelectedFolderId] = useState<string | undefined>()
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
+  const [editingBookmark, setEditingBookmark] = useState<Bookmark | null>(null)
 
   const handleSignOut = async () => {
     try {
@@ -66,7 +76,7 @@ export const BookmarkApp = () => {
 
     // 태그 필터링
     const matchesTags = selectedTagIds.length === 0 || (
-      (bookmark as any).bookmark_tags?.some((bt: any) => 
+      bookmark.bookmark_tags?.some(bt => 
         selectedTagIds.includes(bt.tags.id)
       )
     )
@@ -158,6 +168,7 @@ export const BookmarkApp = () => {
                 모든 태그 해제
               </Button>
             )}
+            <TagManager onTagsUpdated={loadData} />
           </div>
         </div>
 
@@ -179,6 +190,7 @@ export const BookmarkApp = () => {
                   key={bookmark.id}
                   bookmark={bookmark}
                   onBookmarkDeleted={loadData}
+                  onBookmarkEdit={setEditingBookmark}
                   searchQuery={searchQuery}
                 />
               ))}
@@ -193,6 +205,14 @@ export const BookmarkApp = () => {
             selectedFolderId={selectedFolderId}
           />
         </div>
+
+        {/* 북마크 편집 다이얼로그 */}
+        <EditBookmarkDialog
+          bookmark={editingBookmark}
+          open={!!editingBookmark}
+          onOpenChange={(open) => !open && setEditingBookmark(null)}
+          onBookmarkUpdated={loadData}
+        />
       </main>
     </div>
   )

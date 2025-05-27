@@ -95,7 +95,7 @@ export const getBookmarkTags = async (bookmarkId: string): Promise<Tag[]> => {
   const result: Tag[] = []
   if (data) {
     for (const item of data) {
-      const tagData = (item as { tags: Tag }).tags
+      const tagData = (item as unknown as { tags: Tag }).tags
       if (tagData) {
         result.push(tagData)
       }
@@ -127,6 +127,19 @@ export const getTagCounts = async (): Promise<Record<string, number>> => {
   })
 
   return counts
+}
+
+// 태그 업데이트
+export const updateTag = async (id: string, name: string): Promise<Tag> => {
+  const { data, error } = await supabase
+    .from('tags')
+    .update({ name: name.trim().toLowerCase() })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
 }
 
 // 태그 삭제

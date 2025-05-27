@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -14,9 +14,11 @@ import {
 import { createBookmark } from '@/lib/bookmarks'
 import { TagInput } from '@/components/TagInput'
 import { addTagToBookmark } from '@/lib/tags'
+import { getFolders } from '@/lib/folders'
 import { Database } from '@/lib/supabase'
 
 type Tag = Database['public']['Tables']['tags']['Row']
+type Folder = Database['public']['Tables']['folders']['Row']
 
 interface AddBookmarkDialogProps {
   onBookmarkAdded: () => void
@@ -30,8 +32,23 @@ export const AddBookmarkDialog = ({ onBookmarkAdded, selectedFolderId }: AddBook
     url: '',
     title: '',
     memo: '',
+    folder_id: selectedFolderId || '',
   })
   const [selectedTags, setSelectedTags] = useState<Tag[]>([])
+  const [folders, setFolders] = useState<Folder[]>([])
+
+  // 폴더 목록 로드
+  useEffect(() => {
+    const loadFolders = async () => {
+      try {
+        const foldersData = await getFolders()
+        setFolders(foldersData)
+      } catch (error) {
+        console.error('폴더 로딩 실패:', error)
+      }
+    }
+    loadFolders()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,12 +56,12 @@ export const AddBookmarkDialog = ({ onBookmarkAdded, selectedFolderId }: AddBook
 
     setLoading(true)
     try {
-      const bookmark = await createBookmark({
-        url: formData.url.trim(),
-        title: formData.title.trim() || undefined,
-        memo: formData.memo.trim() || undefined,
-        folder_id: selectedFolderId,
-      })
+              const bookmark = await createBookmark({
+          url: formData.url.trim(),
+          title: formData.title.trim() || undefined,
+          memo: formData.memo.trim() || undefined,
+          folder_id: formData.folder_id || undefined,
+        })
 
       // 태그 추가
       for (const tag of selectedTags) {
@@ -52,7 +69,7 @@ export const AddBookmarkDialog = ({ onBookmarkAdded, selectedFolderId }: AddBook
       }
 
       // 폼 초기화
-      setFormData({ url: '', title: '', memo: '' })
+      setFormData({ url: '', title: '', memo: '', folder_id: selectedFolderId || '' })
       setSelectedTags([])
       setOpen(false)
       onBookmarkAdded()
@@ -113,6 +130,25 @@ export const AddBookmarkDialog = ({ onBookmarkAdded, selectedFolderId }: AddBook
               onChange={(e) => setFormData(prev => ({ ...prev, memo: e.target.value }))}
               rows={3}
             />
+          </div>
+
+          <div>
+            <label htmlFor="folder" className="block text-sm font-medium mb-2">
+              폴더 (선택사항)
+            </label>
+            <select
+              id="folder"
+              value={formData.folder_id}
+              onChange={(e) => setFormData(prev => ({ ...prev, folder_id: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">폴더 없음</option>
+              {folders.map(folder => (
+                <option key={folder.id} value={folder.id}>
+                  {folder.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
