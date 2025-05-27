@@ -1,7 +1,5 @@
-import { supabase } from './supabase'
-import { Database } from './supabase'
+import { Database, supabase } from './supabase'
 
-type Bookmark = Database['public']['Tables']['bookmarks']['Row']
 type BookmarkInsert = Database['public']['Tables']['bookmarks']['Insert']
 type BookmarkUpdate = Database['public']['Tables']['bookmarks']['Update']
 
