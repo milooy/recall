@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { signOut } from '@/lib/auth'
 import { getBookmarks } from '@/lib/bookmarks'
 import { getFolders } from '@/lib/folders'
+import { getTags } from '@/lib/tags'
 import { AddBookmarkDialog } from '@/components/AddBookmarkDialog'
 import { BookmarkCard } from '@/components/BookmarkCard'
 import { FolderManager } from '@/components/FolderManager'
@@ -20,7 +21,9 @@ export const BookmarkApp = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [folders, setFolders] = useState<Folder[]>([])
+  const [tags, setTags] = useState<Database['public']['Tables']['tags']['Row'][]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string | undefined>()
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
   const handleSignOut = async () => {
@@ -34,12 +37,14 @@ export const BookmarkApp = () => {
   const loadData = async () => {
     try {
       setLoading(true)
-      const [bookmarksData, foldersData] = await Promise.all([
+      const [bookmarksData, foldersData, tagsData] = await Promise.all([
         getBookmarks(selectedFolderId),
-        getFolders()
+        getFolders(),
+        getTags()
       ])
       setBookmarks(bookmarksData)
       setFolders(foldersData)
+      setTags(tagsData)
     } catch (error) {
       console.error('데이터 로딩 실패:', error)
     } finally {
@@ -51,11 +56,23 @@ export const BookmarkApp = () => {
     loadData()
   }, [selectedFolderId])
 
-  const filteredBookmarks = bookmarks.filter(bookmark =>
-    bookmark.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    bookmark.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (bookmark.memo && bookmark.memo.toLowerCase().includes(searchQuery.toLowerCase()))
-  )
+  const filteredBookmarks = bookmarks.filter(bookmark => {
+    // 검색어 필터링
+    const matchesSearch = !searchQuery || (
+      bookmark.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      bookmark.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (bookmark.memo && bookmark.memo.toLowerCase().includes(searchQuery.toLowerCase()))
+    )
+
+    // 태그 필터링
+    const matchesTags = selectedTagIds.length === 0 || (
+      (bookmark as any).bookmark_tags?.some((bt: any) => 
+        selectedTagIds.includes(bt.tags.id)
+      )
+    )
+
+    return matchesSearch && matchesTags
+  })
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -88,7 +105,7 @@ export const BookmarkApp = () => {
         </div>
 
         {/* 폴더 섹션 */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">폴더</h2>
           <div className="flex gap-2 flex-wrap">
             <Button 
@@ -112,6 +129,38 @@ export const BookmarkApp = () => {
           </div>
         </div>
 
+        {/* 태그 섹션 */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">태그</h2>
+          <div className="flex gap-2 flex-wrap">
+            {tags.map(tag => (
+              <Button
+                key={tag.id}
+                variant={selectedTagIds.includes(tag.id) ? "default" : "outline"}
+                className="rounded-full text-sm"
+                onClick={() => {
+                  if (selectedTagIds.includes(tag.id)) {
+                    setSelectedTagIds(selectedTagIds.filter(id => id !== tag.id))
+                  } else {
+                    setSelectedTagIds([...selectedTagIds, tag.id])
+                  }
+                }}
+              >
+                {tag.name}
+              </Button>
+            ))}
+            {selectedTagIds.length > 0 && (
+              <Button
+                variant="ghost"
+                className="rounded-full text-sm text-gray-500"
+                onClick={() => setSelectedTagIds([])}
+              >
+                모든 태그 해제
+              </Button>
+            )}
+          </div>
+        </div>
+
         {/* 북마크 리스트 */}
         <div className="mb-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">북마크</h2>
@@ -130,6 +179,7 @@ export const BookmarkApp = () => {
                   key={bookmark.id}
                   bookmark={bookmark}
                   onBookmarkDeleted={loadData}
+                  searchQuery={searchQuery}
                 />
               ))}
             </div>

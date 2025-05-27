@@ -12,6 +12,11 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { createBookmark } from '@/lib/bookmarks'
+import { TagInput } from '@/components/TagInput'
+import { addTagToBookmark } from '@/lib/tags'
+import { Database } from '@/lib/supabase'
+
+type Tag = Database['public']['Tables']['tags']['Row']
 
 interface AddBookmarkDialogProps {
   onBookmarkAdded: () => void
@@ -26,6 +31,7 @@ export const AddBookmarkDialog = ({ onBookmarkAdded, selectedFolderId }: AddBook
     title: '',
     memo: '',
   })
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,15 +39,21 @@ export const AddBookmarkDialog = ({ onBookmarkAdded, selectedFolderId }: AddBook
 
     setLoading(true)
     try {
-      await createBookmark({
+      const bookmark = await createBookmark({
         url: formData.url.trim(),
         title: formData.title.trim() || undefined,
         memo: formData.memo.trim() || undefined,
         folder_id: selectedFolderId,
       })
 
+      // 태그 추가
+      for (const tag of selectedTags) {
+        await addTagToBookmark(bookmark.id, tag.id)
+      }
+
       // 폼 초기화
       setFormData({ url: '', title: '', memo: '' })
+      setSelectedTags([])
       setOpen(false)
       onBookmarkAdded()
     } catch (error) {
@@ -100,6 +112,17 @@ export const AddBookmarkDialog = ({ onBookmarkAdded, selectedFolderId }: AddBook
               value={formData.memo}
               onChange={(e) => setFormData(prev => ({ ...prev, memo: e.target.value }))}
               rows={3}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              태그 (선택사항)
+            </label>
+            <TagInput
+              selectedTags={selectedTags}
+              onTagsChange={setSelectedTags}
+              placeholder="태그를 입력하세요"
             />
           </div>
 

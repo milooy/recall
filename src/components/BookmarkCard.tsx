@@ -7,15 +7,17 @@ import { Badge } from '@/components/ui/badge'
 import { Database } from '@/lib/supabase'
 import { updateLastClicked, deleteBookmark } from '@/lib/bookmarks'
 import { Trash2, ExternalLink } from 'lucide-react'
+import { HighlightText } from '@/components/HighlightText'
 
 type Bookmark = Database['public']['Tables']['bookmarks']['Row']
 
 interface BookmarkCardProps {
   bookmark: Bookmark
   onBookmarkDeleted: () => void
+  searchQuery?: string
 }
 
-export const BookmarkCard = ({ bookmark, onBookmarkDeleted }: BookmarkCardProps) => {
+export const BookmarkCard = ({ bookmark, onBookmarkDeleted, searchQuery = '' }: BookmarkCardProps) => {
   const handleClick = async () => {
     try {
       await updateLastClicked(bookmark.id)
@@ -79,12 +81,12 @@ export const BookmarkCard = ({ bookmark, onBookmarkDeleted }: BookmarkCardProps)
           {/* 북마크 정보 */}
           <div className="flex-1 min-w-0" onClick={handleClick}>
             <h3 className="font-semibold text-gray-900 truncate mb-1">
-              {bookmark.title}
+              <HighlightText text={bookmark.title} searchQuery={searchQuery} />
             </h3>
             
             {bookmark.description && (
               <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                {bookmark.description}
+                <HighlightText text={bookmark.description} searchQuery={searchQuery} />
               </p>
             )}
 
@@ -92,6 +94,17 @@ export const BookmarkCard = ({ bookmark, onBookmarkDeleted }: BookmarkCardProps)
               <p className="text-sm text-blue-600 bg-blue-50 rounded px-2 py-1 mb-2">
                 💭 {bookmark.memo}
               </p>
+            )}
+
+            {/* 태그 표시 */}
+            {(bookmark as any).bookmark_tags && (bookmark as any).bookmark_tags.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-2">
+                {(bookmark as any).bookmark_tags.map((bt: any) => (
+                  <Badge key={bt.tags.id} variant="outline" className="text-xs">
+                    {bt.tags.name}
+                  </Badge>
+                ))}
+              </div>
             )}
 
             <div className="flex items-center justify-between">
