@@ -1,19 +1,20 @@
-'use client'
+"use client";
 
-import { useAuth } from '@/contexts/AuthContext'
-import { LoginButton } from '@/components/LoginButton'
-import { BookmarkApp } from '@/components/BookmarkApp'
+import { useAuth } from "@/contexts/AuthContext";
+import { LoginButton } from "@/components/LoginButton";
+import { BookmarkApp } from "@/components/BookmarkApp";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function Home() {
-  const { user, loading } = useAuth()
-  console.log({user})
+  const { user, loading } = useAuth();
+  console.log({ user });
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">로딩 중...</div>
+        <Spinner size="lg" />
       </div>
-    )
+    );
   }
 
   if (!user) {
@@ -21,18 +22,14 @@ export default function Home() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md w-full mx-auto p-6">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              북마크 앱
-            </h1>
-            <p className="text-gray-600">
-              심플하고 강력한 북마크 관리
-            </p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">북마크 앱</h1>
+            <p className="text-gray-600">심플하고 강력한 북마크 관리</p>
           </div>
           <LoginButton />
         </div>
       </div>
-    )
+    );
   }
 
-  return <BookmarkApp />
+  return <BookmarkApp />;
 }

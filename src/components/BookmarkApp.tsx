@@ -11,6 +11,7 @@ import { getFolders } from "@/lib/folders";
 import { Database } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import ProfileDropdown from "./ProfileDropdown";
+import { BookmarkSkeleton } from "./BookmarkSkeleton";
 
 type Bookmark = Database["public"]["Tables"]["bookmarks"]["Row"] & {
   bookmark_tags?: {
@@ -30,6 +31,9 @@ export const BookmarkApp = () => {
   const [selectedFolderId, setSelectedFolderId] = useState<
     string | undefined
   >();
+  const [sortBy, setSortBy] = useState<"recent" | "created" | "title">(
+    "recent"
+  );
   const [loading, setLoading] = useState(true);
   const [editingBookmark, setEditingBookmark] = useState<Bookmark | null>(null);
 
@@ -53,21 +57,39 @@ export const BookmarkApp = () => {
     loadData();
   }, []);
 
-  const filteredBookmarks = bookmarks.filter((bookmark) => {
-    // 검색어 필터링
-    const matchesSearch =
-      !searchQuery ||
-      bookmark.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      bookmark.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (bookmark.memo &&
-        bookmark.memo.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredBookmarks = bookmarks
+    .filter((bookmark) => {
+      // 검색어 필터링
+      const matchesSearch =
+        !searchQuery ||
+        bookmark.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        bookmark.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (bookmark.memo &&
+          bookmark.memo.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    // 폴더 필터링
-    const matchesFolder =
-      !selectedFolderId || bookmark.folder_id === selectedFolderId;
+      // 폴더 필터링
+      const matchesFolder =
+        !selectedFolderId || bookmark.folder_id === selectedFolderId;
 
-    return matchesSearch && matchesFolder;
-  });
+      return matchesSearch && matchesFolder;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "recent":
+          return (
+            new Date(b.last_clicked_at).getTime() -
+            new Date(a.last_clicked_at).getTime()
+          );
+        case "created":
+          return (
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+        case "title":
+          return a.title.localeCompare(b.title);
+        default:
+          return 0;
+      }
+    });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -111,14 +133,42 @@ export const BookmarkApp = () => {
             <FolderManager onFolderCreated={loadData} />
           </div>
         </div>
+
+        {/* 정렬 필터 */}
+        <div className="mb-6">
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              size="sm"
+              variant={sortBy === "recent" ? "default" : "outline"}
+              className="rounded-full"
+              onClick={() => setSortBy("recent")}
+            >
+              최근에 읽은 순
+            </Button>
+            <Button
+              size="sm"
+              variant={sortBy === "created" ? "default" : "outline"}
+              className="rounded-full"
+              onClick={() => setSortBy("created")}
+            >
+              최근에 추가한 순
+            </Button>
+            <Button
+              size="sm"
+              variant={sortBy === "title" ? "default" : "outline"}
+              className="rounded-full"
+              onClick={() => setSortBy("title")}
+            >
+              제목순
+            </Button>
+          </div>
+        </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* 북마크 리스트 */}
         <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">북마크</h2>
           {loading ? (
-            <div className="text-center py-12 text-gray-500">로딩 중...</div>
+            <BookmarkSkeleton />
           ) : filteredBookmarks.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               {searchQuery
