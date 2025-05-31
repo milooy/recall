@@ -48,7 +48,7 @@ export const BookmarkApp = () => {
     try {
       setLoading(true)
       const [bookmarksData, foldersData, tagsData] = await Promise.all([
-        getBookmarks(selectedFolderId),
+        getBookmarks(),
         getFolders(),
         getTags()
       ])
@@ -64,7 +64,7 @@ export const BookmarkApp = () => {
 
   useEffect(() => {
     loadData()
-  }, [selectedFolderId])
+  }, [])
 
   const filteredBookmarks = bookmarks.filter(bookmark => {
     // 검색어 필터링
@@ -74,6 +74,9 @@ export const BookmarkApp = () => {
       (bookmark.memo && bookmark.memo.toLowerCase().includes(searchQuery.toLowerCase()))
     )
 
+    // 폴더 필터링
+    const matchesFolder = !selectedFolderId || bookmark.folder_id === selectedFolderId
+
     // 태그 필터링
     const matchesTags = selectedTagIds.length === 0 || (
       bookmark.bookmark_tags?.some(bt => 
@@ -81,11 +84,12 @@ export const BookmarkApp = () => {
       )
     )
 
-    return matchesSearch && matchesTags
+    return matchesSearch && matchesFolder && matchesTags
   })
 
   return (
     <div className="min-h-screen bg-gray-50">
+      
       {/* 헤더 */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
@@ -103,11 +107,12 @@ export const BookmarkApp = () => {
 
       {/* 메인 컨텐츠 */}
       <main className="max-w-6xl mx-auto px-4 py-8">
+        <h1 className="text-2xl text-gray-900">Sites to <strong>recall</strong></h1>
         {/* 검색창 */}
         <div className="mb-8">
           <Input
             type="text"
-            placeholder="북마크 검색..."
+            placeholder="Paste link to add. Or type keyword to search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full max-w-2xl mx-auto text-lg py-6"

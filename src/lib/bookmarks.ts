@@ -58,11 +58,11 @@ export const createBookmark = async (data: {
 }
 
 // 북마크 목록 조회 (태그 포함)
-export const getBookmarks = async (folderId?: string) => {
+export const getBookmarks = async () => {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('User not authenticated')
 
-  let query = supabase
+  const { data, error } = await supabase
     .from('bookmarks')
     .select(`
       *,
@@ -75,12 +75,6 @@ export const getBookmarks = async (folderId?: string) => {
     `)
     .eq('user_id', user.id)
     .order('last_clicked_at', { ascending: false })
-
-  if (folderId) {
-    query = query.eq('folder_id', folderId)
-  }
-
-  const { data, error } = await query
 
   if (error) throw error
   return data || []
