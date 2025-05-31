@@ -12,6 +12,7 @@ import { Database } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import ProfileDropdown from "./ProfileDropdown";
 import { BookmarkSkeleton } from "./BookmarkSkeleton";
+import { BookmarkSort, BookmarkSortDropdown } from "./BookmarkSortDropdown";
 
 type Bookmark = Database["public"]["Tables"]["bookmarks"]["Row"] & {
   bookmark_tags?: {
@@ -31,9 +32,7 @@ export const BookmarkApp = () => {
   const [selectedFolderId, setSelectedFolderId] = useState<
     string | undefined
   >();
-  const [sortBy, setSortBy] = useState<"recent" | "created" | "title">(
-    "recent"
-  );
+  const [sortBy, setSortBy] = useState<BookmarkSort>("recent");
   const [loading, setLoading] = useState(true);
   const [editingBookmark, setEditingBookmark] = useState<Bookmark | null>(null);
 
@@ -98,7 +97,7 @@ export const BookmarkApp = () => {
         <h1 className="text-2xl text-gray-900">
           Sites to <strong>recall</strong>
         </h1>
-        <div className="my-8 w-full px-4">
+        <div className="mt-8 mb-4 w-full px-4">
           <Input
             autoFocus
             type="text"
@@ -133,39 +132,12 @@ export const BookmarkApp = () => {
             <FolderManager onFolderCreated={loadData} />
           </div>
         </div>
-
-        {/* 정렬 필터 */}
-        <div className="mb-6">
-          <div className="flex gap-2 flex-wrap">
-            <Button
-              size="sm"
-              variant={sortBy === "recent" ? "default" : "outline"}
-              className="rounded-full"
-              onClick={() => setSortBy("recent")}
-            >
-              최근에 읽은 순
-            </Button>
-            <Button
-              size="sm"
-              variant={sortBy === "created" ? "default" : "outline"}
-              className="rounded-full"
-              onClick={() => setSortBy("created")}
-            >
-              최근에 추가한 순
-            </Button>
-            <Button
-              size="sm"
-              variant={sortBy === "title" ? "default" : "outline"}
-              className="rounded-full"
-              onClick={() => setSortBy("title")}
-            >
-              제목순
-            </Button>
-          </div>
-        </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
+        <div className="flex justify-end mb-4">
+          <BookmarkSortDropdown value={sortBy} onChange={setSortBy} />
+        </div>
         <div className="mb-8">
           {loading ? (
             <BookmarkSkeleton />
