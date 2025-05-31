@@ -25,8 +25,8 @@ export function BookmarkSortDropdown({
   onChange,
   value,
 }: {
-  value: "recent" | "created" | "title";
-  onChange: (sort: "recent" | "created" | "title") => void;
+  value: BookmarkSort;
+  onChange: (sort: BookmarkSort) => void;
 }) {
   const [position, setPosition] = React.useState("bottom");
 

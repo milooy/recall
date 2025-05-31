@@ -127,12 +127,10 @@ export const BookmarkCard = ({
         )}
       </div>
 
-      {/* 생성일 */}
       <div className="flex-shrink-0 text-xs text-gray-500">
-        {formatDate(bookmark.created_at)}
+        {formatDate(bookmark.last_clicked_at)}
       </div>
 
-      {/* 액션 버튼들 */}
       <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         {onBookmarkEdit && (
           <Button
