@@ -110,7 +110,7 @@ export const BookmarkApp = () => {
           <Input
             autoFocus
             type="text"
-            placeholder="Add link or search"
+            placeholder="Recall the memories..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full max-w-2xl mx-auto text-lg py-2"
@@ -124,9 +124,7 @@ export const BookmarkApp = () => {
               variant={selectedFolderId ? "outline" : "default"}
               className="rounded-full"
               onClick={() => setSelectedFolderId(undefined)}
-              style={{
-                cursor: "pointer",
-              }}
+              style={{ cursor: "pointer" }}
             >
               All
             </Button>
@@ -157,8 +155,8 @@ export const BookmarkApp = () => {
           ) : filteredBookmarks.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               {searchQuery
-                ? "검색 결과가 없습니다."
-                : "아직 북마크가 없습니다. 첫 번째 북마크를 추가해보세요!"}
+                ? "No results found."
+                : "No bookmarks yet. Add your first one!"}
             </div>
           ) : (
             <div className="grid gap-4">
@@ -175,7 +173,7 @@ export const BookmarkApp = () => {
           )}
         </div>
 
-        {/* 북마크 추가 버튼 */}
+        {/* Add Bookmark Button */}
         <div className="fixed bottom-8 right-8">
           <AddBookmarkDialog
             onBookmarkAdded={loadData}
@@ -183,7 +181,7 @@ export const BookmarkApp = () => {
           />
         </div>
 
-        {/* 북마크 편집 다이얼로그 */}
+        {/* Edit Bookmark Dialog */}
         <EditBookmarkDialog
           bookmark={editingBookmark}
           open={!!editingBookmark}

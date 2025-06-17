@@ -42,14 +42,14 @@ export const BookmarkCard = ({
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    if (!confirm("이 북마크를 삭제하시겠습니까?")) return;
+    if (!confirm("Are you sure you want to delete this bookmark?")) return;
 
     try {
       await deleteBookmark(bookmark.id);
       onBookmarkDeleted();
     } catch (error) {
       console.error("북마크 삭제 실패:", error);
-      alert("북마크 삭제에 실패했습니다.");
+      alert("Failed to delete bookmark.");
     }
   };
 
