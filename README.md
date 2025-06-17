@@ -1,5 +1,3 @@
-![Recall Logo](./public/recall-circle.png)
-
 # Recall - Bookmark Management Service
 
 ![Recall gif](./public/recall.gif)
