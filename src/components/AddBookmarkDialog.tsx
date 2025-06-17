@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,7 +14,6 @@ import {
 import { createBookmark } from "@/lib/bookmarks";
 import { TagInput } from "@/components/TagInput";
 import { addTagToBookmark } from "@/lib/tags";
-import { getFolders } from "@/lib/folders";
 import { Database } from "@/lib/supabase";
 
 type Tag = Database["public"]["Tables"]["tags"]["Row"];
@@ -23,11 +22,13 @@ type Folder = Database["public"]["Tables"]["folders"]["Row"];
 interface AddBookmarkDialogProps {
   onBookmarkAdded: () => void;
   selectedFolderId?: string;
+  folders: Folder[];
 }
 
 export const AddBookmarkDialog = ({
   onBookmarkAdded,
   selectedFolderId,
+  folders
 }: AddBookmarkDialogProps) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -38,20 +39,6 @@ export const AddBookmarkDialog = ({
     folder_id: selectedFolderId || "",
   });
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
-  const [folders, setFolders] = useState<Folder[]>([]);
-
-  // 폴더 목록 로드
-  useEffect(() => {
-    const loadFolders = async () => {
-      try {
-        const foldersData = await getFolders();
-        setFolders(foldersData);
-      } catch (error) {
-        console.error("폴더 로딩 실패:", error);
-      }
-    };
-    loadFolders();
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
