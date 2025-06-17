@@ -2,6 +2,8 @@
 
 # Recall - Bookmark Management Service
 
+![Recall gif](./public/recall.gif)
+
 **Recall** is a simple and powerful bookmark management service that lets you quickly save websites, articles, and resources, organize them with folders and tags, and easily find them anytime.
 
 ---
