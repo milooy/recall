@@ -124,8 +124,11 @@ export const BookmarkApp = () => {
               variant={selectedFolderId ? "outline" : "default"}
               className="rounded-full"
               onClick={() => setSelectedFolderId(undefined)}
+              style={{
+                cursor: "pointer",
+              }}
             >
-              전체
+              All
             </Button>
             {folders.map((folder) => (
               <Button
@@ -134,6 +137,7 @@ export const BookmarkApp = () => {
                 variant={selectedFolderId === folder.id ? "default" : "outline"}
                 className="rounded-full"
                 onClick={() => setSelectedFolderId(folder.id)}
+                style={{ cursor: "pointer" }}
               >
                 {folder.name}
               </Button>
