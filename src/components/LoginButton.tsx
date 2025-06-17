@@ -1,20 +1,20 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
-import { signInWithGoogle } from '@/lib/auth'
+import { Button } from "@/components/ui/button";
+import { signInWithGoogle } from "@/lib/auth";
 
 export const LoginButton = () => {
   const handleLogin = async () => {
     try {
-      await signInWithGoogle()
+      await signInWithGoogle();
     } catch (error) {
-      console.error('로그인 실패:', error)
+      console.error("Login failed:", error);
     }
-  }
+  };
 
   return (
     <Button onClick={handleLogin} className="w-full">
-      Google로 로그인
+      Login with Google
     </Button>
-  )
-} 
+  );
+};

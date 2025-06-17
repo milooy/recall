@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { LoginButton } from "@/components/LoginButton";
 import { BookmarkApp } from "@/components/BookmarkApp";
 import { Spinner } from "@/components/ui/spinner";
+import Image from "next/image";
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -21,9 +22,17 @@ export default function Home() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md w-full mx-auto p-6">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">북마크 앱</h1>
-            <p className="text-gray-600">심플하고 강력한 북마크 관리</p>
+          <div className="flex flex-col items-center mb-8">
+            <Image
+              src="/recall-circle.png"
+              alt="Recall Logo"
+              width={64}
+              height={64}
+              className="mb-2"
+              priority
+            />
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Recall</h1>
+            <p className="text-gray-600">Super simple bookmark manager</p>
           </div>
           <LoginButton />
         </div>
