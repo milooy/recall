@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import ProfileDropdown from "./ProfileDropdown";
 import { BookmarkSkeleton } from "./BookmarkSkeleton";
 import { BookmarkSort, BookmarkSortDropdown } from "./BookmarkSortDropdown";
+import Image from "next/image";
 
 type Bookmark = Database["public"]["Tables"]["bookmarks"]["Row"] & {
   bookmark_tags?: {
@@ -93,7 +94,15 @@ export const BookmarkApp = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <ProfileDropdown />
-      <header className="flex flex-col items-center justify-center pt-6">
+      <header className="flex flex-col items-center justify-center pt-16">
+        <Image
+          src="/recall-circle.png"
+          alt="Recall Logo"
+          width={64}
+          height={64}
+          className="mb-2"
+          priority
+        />
         <h1 className="text-2xl text-gray-900">
           Sites to <strong>recall</strong>
         </h1>
