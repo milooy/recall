@@ -178,6 +178,7 @@ export const BookmarkApp = () => {
           <AddBookmarkDialog
             onBookmarkAdded={loadData}
             selectedFolderId={selectedFolderId}
+            folders={folders}
           />
         </div>
 
